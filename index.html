@@ -1,122 +1,300 @@
-<!DOCTYPE html>
-<html lang="en-us">
-	<head>
-		<title> ::BkaZa:: </title>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BkaZa</title>
 
-		<meta http-equiv="content-type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<meta name="generator" content="Hugo 0.41" />
+  <style>
+    :root {
+      --bg: #020402;
+      --green: #00ff66;
+      --green-soft: #9dffc4;
+      --green-dim: #3c8f59;
+      --terminal-bg: rgba(0, 0, 0, 0.76);
+      --terminal-border: rgba(0, 255, 102, 0.52);
+    }
 
+    * {
+      box-sizing: border-box;
+    }
 
-<script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--green);
+      font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        "Liberation Mono",
+        monospace;
+    }
 
+    #matrix {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: radial-gradient(circle at center, #061406 0%, #020402 48%, #000 100%);
+      z-index: 0;
+    }
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.18) 42%, rgba(0, 0, 0, 0.82) 100%),
+        linear-gradient(rgba(0, 255, 102, 0.03) 50%, transparent 50%);
+      background-size: auto, 100% 4px;
+      mix-blend-mode: screen;
+    }
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    main {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
 
+    .terminal {
+      width: min(820px, 100%);
+      border: 1px solid var(--terminal-border);
+      border-radius: 14px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(0, 255, 102, 0.035) 50%, transparent 50%),
+        var(--terminal-bg);
+      background-size: 100% 4px;
+      box-shadow:
+        0 0 72px rgba(0, 255, 102, 0.22),
+        0 0 18px rgba(0, 255, 102, 0.22),
+        inset 0 0 30px rgba(0, 255, 102, 0.06);
+      backdrop-filter: blur(2px);
+    }
 
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(0, 255, 102, 0.28);
+      background: rgba(0, 0, 0, 0.58);
+      color: var(--green-dim);
+      font-size: 13px;
+      user-select: none;
+    }
 
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 255, 102, 0.75);
+      box-shadow: 0 0 8px rgba(0, 255, 102, 0.2);
+    }
 
-<link rel="stylesheet" href="css/nix.css">
+    .title {
+      flex: 1;
+      text-align: center;
+      padding-right: 60px;
+      color: var(--green-soft);
+      opacity: 0.78;
+    }
 
+    .screen {
+      padding: clamp(22px, 4vw, 36px);
+      min-height: 420px;
+      font-size: clamp(14px, 2.15vw, 18px);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      text-shadow: 0 0 9px rgba(0, 255, 102, 0.54);
+    }
 
-<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+    .prompt {
+      color: var(--green);
+    }
 
+    .answer {
+      color: var(--green-soft);
+    }
 
+    .muted {
+      color: var(--green-dim);
+    }
 
+    a {
+      color: var(--green-soft);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(157, 255, 196, 0.62);
+    }
 
+    a:hover {
+      color: white;
+      border-color: white;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+    }
 
-	</head>
-	<body>
-		<header>
-<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
-	<div class="container-fluid">
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" id="green-terminal" href=>BkaZa@Me ~ $</a>
-		</div>
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 1.15em;
+      margin-left: 4px;
+      background: var(--green);
+      vertical-align: -0.22em;
+      animation: blink 1s steps(2, start) infinite;
+      box-shadow: 0 0 10px rgba(0, 255, 102, 0.95);
+    }
 
-		
-		<div class="collapse navbar-collapse" id="navbar-collapse-1">
-			<ul class="nav navbar-nav navbar-right">
-				<li>
-					<a href="">/home/BkaZa</a>
-				</li>
-				
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
 
-			</ul>
-		</div>
-	</div>
-</nav>
-</header>
+    @media (max-width: 520px) {
+      body {
+        overflow: auto;
+      }
 
-		<div class="container wrapper">
-			
-			<div class="row">
-				<div class="col-sm-3 col-centered">
-					<img alt="profile-picture" class="img-responsive img-circle user-picture" src="https://instagram.fbkk2-1.fna.fbcdn.net/vp/5f00ee2e7fd910407d34023a23f6bd4c/5BC14DDE/t51.2885-19/s320x320/31047164_390797751387039_2484767640208277504_n.jpg">
-				</div>
-			</div>
-			
-			<div class="row">
-				<div class="col-xs-12 user-profile text-center">
-					<h1 id="user-name">BkaZa</h1>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-xs-12 user-social text-center">
-				
+      main {
+        align-items: start;
+        padding: 16px;
+      }
 
+      .terminal {
+        margin-top: 20px;
+        border-radius: 10px;
+      }
 
+      .screen {
+        min-height: auto;
+      }
 
+      .title {
+        text-align: left;
+        padding-right: 0;
+      }
+    }
+  </style>
+</head>
 
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
 
+  <main>
+    <section class="terminal" aria-label="A completely unnecessary terminal">
+      <div class="bar">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="title">/home/bkaza — production-grade nothingness</span>
+      </div>
 
+      <div class="screen"><span class="prompt">$ whoami</span>
+<span class="answer">a runtime error with a domain name.</span>
 
+<span class="prompt">$ ls</span>
+<span class="answer">nothing
+also nothing
+still nothing</span>
 
-<a href="https://github.com/BkaZa" title="GitHub"><i class="fa fa-github fa-3x" aria-hidden="true"></i></a>
+<span class="prompt">$ cat purpose.txt</span>
+<span class="answer">404: purpose not found</span>
 
+<span class="prompt">$ sudo make me useful</span>
+<span class="answer">permission denied: usefulness is not installed</span>
 
+<span class="prompt">$ uptime</span>
+<span class="answer">long enough to be irrelevant</span>
 
+<span class="prompt">$ git status</span>
+<span class="answer">on branch existential-crisis
+nothing to commit, nothing to offer</span>
 
+<span class="prompt">$ echo "welcome"</span>
+<span class="answer">no.</span>
 
-<a href="https://instagram.com/ledliml" title="Instagram"><i class="fa fa-instagram fa-3x" aria-hidden="true"></i></a>
+<span class="muted">github: <a href="https://github.com/BkaZa">github.com/BkaZa</a></span>
 
+<span class="prompt">$</span><span class="cursor"></span></div>
+    </section>
+  </main>
 
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d", { alpha: false });
 
+    const chars = "01BKAZA{}[]<>/\\$#@!?+-=_ゴミﾊﾞｸﾞ虚無";
+    const fontSize = 17;
+    let columns = 0;
+    let drops = [];
 
+    function setupCanvas() {
+      const dpr = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+      columns = Math.ceil(window.innerWidth / fontSize);
+      drops = Array.from({ length: columns }, () => Math.random() * window.innerHeight / fontSize);
+    }
 
+    function drawMatrixRain() {
+      ctx.fillStyle = "rgba(2, 4, 2, 0.095)";
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
+      ctx.font = fontSize + "px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
 
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
 
+        const glowChance = Math.random();
 
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-4 col-md-offset-4 user-description text-center">
-					<p>, ..</p>
-				</div>
-			</div>
-			<div class="push"></div>
-		</div>
-		<footer class="footer text-center">
-<p>Copyright &copy; 2018 BkaZa -
-<span class="credit">
-	Powered by
-	<a target="_blank" href="https://gohugo.io">Hugo</a>
-	and
-	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
-</span>
-</p>
-</footer>
+        if (glowChance > 0.965) {
+          ctx.fillStyle = "#d8ffe6";
+          ctx.shadowColor = "#00ff66";
+          ctx.shadowBlur = 14;
+        } else {
+          ctx.fillStyle = "#00b84a";
+          ctx.shadowBlur = 0;
+        }
 
-	</body>
+        ctx.fillText(char, x, y);
+
+        if (y > window.innerHeight && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+
+        drops[i] += 0.72 + Math.random() * 0.75;
+      }
+
+      requestAnimationFrame(drawMatrixRain);
+    }
+
+    setupCanvas();
+    drawMatrixRain();
+
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(setupCanvas, 120);
+    });
+  </script>
+</body>
 </html>
