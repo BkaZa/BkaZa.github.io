@@ -72,8 +72,8 @@
     }
 
     .terminal {
-      width: min(760px, 100%);
-      max-height: min(640px, calc(100svh - 32px));
+      width: min(790px, 100%);
+      max-height: min(660px, calc(100svh - 32px));
       border: 1px solid var(--terminal-border);
       border-radius: 14px;
       overflow: hidden;
@@ -86,6 +86,61 @@
         0 0 16px rgba(0, 255, 102, 0.20),
         inset 0 0 28px rgba(0, 255, 102, 0.055);
       backdrop-filter: blur(2px);
+      position: relative;
+    }
+
+    .terminal::before,
+    .terminal::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 3;
+    }
+
+    .terminal::before {
+      background: rgba(0, 255, 102, 0.12);
+      mix-blend-mode: screen;
+    }
+
+    .terminal::after {
+      background:
+        linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent),
+        repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 255, 102, 0.08) 2px 4px);
+      transform: translateX(-110%);
+    }
+
+    .terminal.glitch {
+      animation: terminalShake 140ms steps(2, end);
+    }
+
+    .terminal.glitch::before {
+      opacity: 1;
+      animation: flash 140ms steps(2, end);
+    }
+
+    .terminal.glitch::after {
+      opacity: 1;
+      animation: sweep 140ms steps(2, end);
+    }
+
+    @keyframes terminalShake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(2px, -1px); }
+      50% { transform: translate(-2px, 1px); }
+      75% { transform: translate(1px, 1px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    @keyframes flash {
+      0% { opacity: 0.2; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes sweep {
+      0% { transform: translateX(-110%); }
+      100% { transform: translateX(110%); }
     }
 
     .bar {
@@ -121,7 +176,7 @@
     }
 
     .screen {
-      max-height: calc(min(640px, 100svh - 32px) - 45px);
+      max-height: calc(min(660px, 100svh - 32px) - 45px);
       overflow: auto;
       padding: clamp(18px, 4vw, 30px);
       font-size: clamp(13px, 2vw, 17px);
@@ -157,6 +212,11 @@
       color: var(--green-dim);
     }
 
+    .danger {
+      color: #d8ffe6;
+      text-shadow: 0 0 14px rgba(0, 255, 102, 0.95);
+    }
+
     a {
       color: var(--green-soft);
       text-decoration: none;
@@ -183,6 +243,15 @@
     @keyframes blink {
       50% {
         opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cursor,
+      .terminal.glitch,
+      .terminal.glitch::before,
+      .terminal.glitch::after {
+        animation: none;
       }
     }
 
@@ -226,7 +295,7 @@
   <div class="vignette" aria-hidden="true"></div>
 
   <main>
-    <section class="terminal" aria-label="A completely unnecessary terminal">
+    <section class="terminal" id="terminal" aria-label="A completely unnecessary terminal">
       <div class="bar">
         <span class="dot"></span>
         <span class="dot"></span>
@@ -234,34 +303,12 @@
         <span class="title">/home/bkaza — production-grade nothingness</span>
       </div>
 
-      <div class="screen"><span class="prompt">$ whoami</span>
-<span class="answer">a runtime error with a domain name.</span>
-
-<span class="prompt">$ ls</span>
-<span class="answer">nothing
-also nothing
-still nothing</span>
-
-<span class="prompt">$ cat purpose.txt</span>
-<span class="answer">404: purpose not found</span>
-
-<span class="prompt">$ sudo make me useful</span>
-<span class="answer">permission denied: usefulness is not installed</span>
-
-<span class="prompt">$ git status</span>
-<span class="answer">on branch existential-crisis
-nothing to commit, nothing to offer</span>
-
-<span class="prompt">$ echo "welcome"</span>
-<span class="answer">no.</span>
-
-<span class="muted">github: <a href="https://github.com/BkaZa">github.com/BkaZa</a></span>
-
-<span class="prompt">$</span><span class="cursor"></span></div>
+      <div class="screen" id="screen"></div>
     </section>
   </main>
 
   <script>
+    // Matrix rain background. Very serious. Obviously.
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d", { alpha: false });
 
@@ -322,6 +369,159 @@ nothing to commit, nothing to offer</span>
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(setupCanvas, 120);
     });
+
+    // Terminal nonsense.
+    const terminal = document.getElementById("terminal");
+    const screen = document.getElementById("screen");
+
+    const identities = [
+      "a runtime error with a domain name.",
+      "404 in human form.",
+      "works on my machine.",
+      "professional copy-paste engineer.",
+      "undefined is not a person.",
+      "probably in production.",
+      "temporarily pretending to know Go.",
+      "one commit away from disaster.",
+      "a bug report that learned HTML.",
+      "localhost with trust issues."
+    ];
+
+    const identity = identities[Math.floor(Math.random() * identities.length)];
+
+    const lines = [
+      { text: "Booting kernel...", className: "muted", delayAfter: 160 },
+      { text: "Loading useless modules...", className: "muted", delayAfter: 180 },
+      { text: "Decrypting reality...", className: "muted", delayAfter: 260 },
+      { text: "Reality check failed. Continuing anyway.", className: "danger", delayAfter: 380 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ whoami", className: "prompt", delayAfter: 180 },
+      { text: identity, className: "answer", delayAfter: 360 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ ls", className: "prompt", delayAfter: 160 },
+      { text: "nothing", className: "answer", delayAfter: 90 },
+      { text: "also nothing", className: "answer", delayAfter: 90 },
+      { text: "still nothing", className: "answer", delayAfter: 260 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ cat purpose.txt", className: "prompt", delayAfter: 160 },
+      { text: "404: purpose not found", className: "answer", delayAfter: 320 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ sudo make me useful", className: "prompt", delayAfter: 160 },
+      { text: "permission denied: usefulness is not installed", className: "answer", delayAfter: 340 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ git status", className: "prompt", delayAfter: 160 },
+      { text: "on branch existential-crisis", className: "answer", delayAfter: 90 },
+      { text: "nothing to commit, nothing to offer", className: "answer", delayAfter: 340 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ uptime", className: "prompt", delayAfter: 160 },
+      { text: "long enough to be irrelevant", className: "answer", delayAfter: 300 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ echo \"welcome\"", className: "prompt", delayAfter: 160 },
+      { text: "no.", className: "answer", delayAfter: 340 },
+      { text: "", delayAfter: 120 },
+
+      { text: "github: https://github.com/BkaZa", className: "muted", delayAfter: 360 },
+      { text: "", delayAfter: 120 },
+
+      { text: "$ logout", className: "prompt", delayAfter: 200 },
+      { text: "Segmentation fault (core dumped)", className: "danger", delayAfter: 200 },
+      { text: "Connection to reality closed.", className: "muted", delayAfter: 0 }
+    ];
+
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function appendLine(text, className = "") {
+      const line = document.createElement("div");
+      line.className = className;
+      if (text === "github: https://github.com/BkaZa") {
+        line.innerHTML = 'github: <a href="https://github.com/BkaZa">github.com/BkaZa</a>';
+      } else {
+        line.textContent = text;
+      }
+      screen.appendChild(line);
+      screen.scrollTop = screen.scrollHeight;
+      return line;
+    }
+
+    function appendCursor() {
+      const line = document.createElement("div");
+      line.className = "prompt";
+      line.innerHTML = "$<span class=\"cursor\"></span>";
+      screen.appendChild(line);
+      screen.scrollTop = screen.scrollHeight;
+    }
+
+    async function typeLine(item) {
+      const line = document.createElement("div");
+      line.className = item.className || "";
+      screen.appendChild(line);
+
+      if (!item.text) {
+        line.innerHTML = "&nbsp;";
+        screen.scrollTop = screen.scrollHeight;
+        return;
+      }
+
+      for (const char of item.text) {
+        line.textContent += char;
+        screen.scrollTop = screen.scrollHeight;
+        await sleep(8 + Math.random() * 18);
+      }
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function runTerminal() {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (reduceMotion) {
+        for (const item of lines) {
+          appendLine(item.text, item.className);
+        }
+        appendCursor();
+        return;
+      }
+
+      for (const item of lines) {
+        await typeLine(item);
+        await sleep(item.delayAfter ?? 160);
+      }
+
+      appendCursor();
+    }
+
+    runTerminal();
+
+    // Cheap glitch. Expensive personality.
+    function randomGlitch() {
+      terminal.classList.add("glitch");
+
+      if (Math.random() > 0.55) {
+        const glitchLine = appendLine("████████████████████████", "danger");
+        setTimeout(() => glitchLine.remove(), 120);
+      }
+
+      setTimeout(() => terminal.classList.remove("glitch"), 160);
+
+      const next = 12000 + Math.random() * 18000;
+      setTimeout(randomGlitch, next);
+    }
+
+    setTimeout(randomGlitch, 5500 + Math.random() * 3500);
   </script>
 </body>
 </html>
